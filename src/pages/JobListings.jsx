@@ -11,7 +11,10 @@ const JobListings = () => {
   const [limit] = useState(9);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ jobType: "", location: "" });
-  const { token } = useContext(AuthContext);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [applicationData, setApplicationData] = useState({ resume: "", coverLetter: "" });
+  const { token, role } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
@@ -36,21 +39,33 @@ const JobListings = () => {
 
   const handleFilterChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
-    setPage(1); // Reset to first page on filter change
+    setPage(1);
   };
 
-  const handleApply = async (jobId) => {
+  const handleApplyClick = (job) => {
     if (!token) {
       navigate("/signin");
       return;
     }
+    if (role !== "Job Seeker") {
+      alert("Only job seekers can apply for jobs!");
+      return;
+    }
+    setSelectedJob(job);
+    setShowModal(true);
+  };
+
+  const handleApplySubmit = async (e) => {
+    e.preventDefault();
     try {
       await axios.post(
         "http://localhost:5000/api/jobs/apply",
-        { jobId, resume: "https://example.com/resume.pdf", coverLetter: "Interested in this role!" },
+        { jobId: selectedJob._id, ...applicationData },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Application submitted successfully!");
+      setShowModal(false);
+      setApplicationData({ resume: "", coverLetter: "" });
     } catch (error) {
       alert(error.response?.data?.message || "Failed to apply!");
     }
@@ -63,7 +78,7 @@ const JobListings = () => {
       <Navbar />
       <div className="max-w-6xl mx-auto mt-12 p-6">
         <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Explore Job Opportunities
+          Explore Job Opportunities on HuntX
         </h2>
 
         {/* Filters */}
@@ -126,8 +141,8 @@ const JobListings = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => handleApply(job._id)}
-                  className="mt-4 bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition duration-300"
+                  onClick={() => handleApplyClick(job)}
+                  className="mt-4 bg-gradient-to-r from-primary to-secondary text-white py-2 px-4 rounded-lg hover:shadow-lg transition duration-300 transform hover:scale-105"
                 >
                   Apply Now
                 </button>
@@ -157,6 +172,55 @@ const JobListings = () => {
           </div>
         )}
       </div>
+
+      {/* Apply Now Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+            <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Apply for {selectedJob?.title}
+            </h2>
+            <form onSubmit={handleApplySubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">Resume URL</label>
+                <input
+                  type="text"
+                  placeholder="https://example.com/resume.pdf"
+                  value={applicationData.resume}
+                  onChange={(e) => setApplicationData({ ...applicationData, resume: e.target.value })}
+                  className="w-full p-3 rounded-lg bg-gray-50 shadow-inner border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">Cover Letter</label>
+                <textarea
+                  placeholder="Why are you a good fit for this role?"
+                  value={applicationData.coverLetter}
+                  onChange={(e) => setApplicationData({ ...applicationData, coverLetter: e.target.value })}
+                  className="w-full p-3 rounded-lg bg-gray-50 shadow-inner border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
+                  rows="4"
+                />
+              </div>
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-primary to-secondary text-white py-2 px-4 rounded-lg hover:shadow-lg transition duration-300"
+                >
+                  Submit Application
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -16,7 +16,7 @@ const PostJob = () => {
     isFeatured: false,
   });
   const [message, setMessage] = useState("");
-  const { token } = useContext(AuthContext);
+  const { token, role } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,6 +30,10 @@ const PostJob = () => {
     e.preventDefault();
     if (!token) {
       setMessage("Please sign in to post a job!");
+      return;
+    }
+    if (role !== "Employer") {
+      setMessage("Only employers can post jobs!");
       return;
     }
     if (Object.values(formData).some((val) => !val && val !== false)) {
@@ -60,7 +64,7 @@ const PostJob = () => {
       <Navbar />
       <div className="max-w-3xl mx-auto mt-12 p-8 bg-white rounded-2xl shadow-2xl">
         <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Post a New Job
+          Post a New Job on HuntX
         </h2>
         {message && (
           <p className={`text-center mb-6 ${message.includes("failed") ? "text-red-500" : "text-green-500"} font-semibold`}>

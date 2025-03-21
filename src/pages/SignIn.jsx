@@ -10,7 +10,7 @@ const SignIn = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const { setToken } = useContext(AuthContext);
+  const { setToken, setRole } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,8 +26,9 @@ const SignIn = () => {
       const response = await axios.post("http://localhost:5000/api/auth/signin", formData);
       setMessage("Signed in successfully!");
       setToken(response.data.token);
+      setRole(response.data.role);
       setFormData({ email: "", password: "" });
-      setTimeout(() => navigate("/jobs"), 2000);
+      setTimeout(() => navigate(response.data.role === "Employer" ? "/employer-profile" : "/jobseeker-profile"), 2000);
     } catch (error) {
       setMessage(error.response?.data?.message || "Sign in failed!");
     }
@@ -40,7 +41,7 @@ const SignIn = () => {
       <div className="flex justify-center items-center mt-16 relative z-10">
         <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md transform hover:scale-105 transition duration-500 border-t-4 border-primary">
           <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Welcome Back!
+            Welcome Back to HuntX!
           </h2>
           {message && (
             <p className={`text-center mb-6 ${message.includes("failed") ? "text-red-500" : "text-green-500"} font-semibold`}>

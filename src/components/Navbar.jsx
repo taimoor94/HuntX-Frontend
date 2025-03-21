@@ -3,14 +3,16 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const { token, setToken } = useContext(AuthContext);
+  const { token, setToken, role, setRole } = useContext(AuthContext);
   const [search, setSearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
     setToken(null);
+    setRole(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate("/");
   };
 
@@ -21,7 +23,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-bgDark shadow-xl py-4 px-6 flex justify-between items-center sticky top-0 z-50">
-      <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      <h1 className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
         HuntX
       </h1>
       <div className="flex items-center space-x-6">
@@ -37,6 +39,7 @@ const Navbar = () => {
         </form>
         <a href="/" className="text-white hover:text-primary transition duration-300 font-semibold">Home</a>
         <a href="/jobs" className="text-white hover:text-primary transition duration-300 font-semibold">Jobs</a>
+        <a href="/career-tips" className="text-white hover:text-primary transition duration-300 font-semibold">Career Tips</a>
         {token ? (
           <div className="relative">
             <button
@@ -48,11 +51,19 @@ const Navbar = () => {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">
                 <a
-                  href="/post-job"
+                  href={role === "Employer" ? "/employer-profile" : "/jobseeker-profile"}
                   className="block px-4 py-2 text-gray-800 hover:bg-primary hover:text-white transition duration-300"
                 >
-                  Post Job
+                  Profile
                 </a>
+                {role === "Employer" && (
+                  <a
+                    href="/post-job"
+                    className="block px-4 py-2 text-gray-800 hover:bg-primary hover:text-white transition duration-300"
+                  >
+                    Post Job
+                  </a>
+                )}
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-primary hover:text-white transition duration-300"

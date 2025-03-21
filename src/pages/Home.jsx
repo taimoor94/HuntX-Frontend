@@ -21,8 +21,8 @@ const Home = () => {
   }, []);
 
   const handleImageError = (e) => {
-    e.target.style.display = "none"; // Hide the broken image
-    e.target.nextSibling.style.display = "block"; // Show fallback
+    e.target.style.display = "none";
+    e.target.nextSibling.style.display = "block";
   };
 
   return (
@@ -81,9 +81,12 @@ const Home = () => {
             Why Choose HuntX?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 fade-in relative">
+            <div
+              className="bg-white p-6 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 fade-in relative cursor-pointer"
+              onClick={() => navigate("/jobs")}
+            >
               <img
-                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80"
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80"
                 alt="Job Search"
                 className="rounded-lg mb-4 w-full h-48 object-cover"
                 onError={handleImageError}
@@ -97,7 +100,10 @@ const Home = () => {
               <h3 className="text-xl font-semibold text-primary">Search Jobs</h3>
               <p className="text-gray-600">Find the perfect role with our advanced search tools.</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 fade-in relative">
+            <div
+              className="bg-white p-6 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 fade-in relative cursor-pointer"
+              onClick={() => navigate("/post-job")}
+            >
               <img
                 src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80"
                 alt="Post Jobs"
@@ -113,9 +119,12 @@ const Home = () => {
               <h3 className="text-xl font-semibold text-primary">Post Jobs</h3>
               <p className="text-gray-600">Hire top talent by posting your openings here.</p>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 fade-in relative">
+            <div
+              className="bg-white p-6 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 fade-in relative cursor-pointer"
+              onClick={() => navigate("/career-tips")}
+            >
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80"
+                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200&q=80"
                 alt="Career Tips"
                 className="rounded-lg mb-4 w-full h-48 object-cover"
                 onError={handleImageError}
@@ -144,7 +153,7 @@ const Home = () => {
             <p className="mt-4 font-semibold text-primary">— Sarah K., Software Engineer</p>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-2xl fade-in">
-            <p className="text-gray-600 italic">"Posting jobs here was so easy, and we found great candidates!"</p>
+            <p className="text-gray-600 italic">"Posting jobs on HuntX was so easy, and we found great candidates!"</p>
             <p className="mt-4 font-semibold text-primary">— Mark T., HR Manager</p>
           </div>
         </div>
@@ -153,6 +162,7 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-bgDark text-white py-8">
         <div className="max-w-6xl mx-auto px-6 text-center">
+          <h1 className="logo mb-4">HuntX</h1>
           <p className="text-lg">© 2025 HuntX. All rights reserved.</p>
           <div className="mt-4 space-x-4">
             <a href="#" className="hover:text-primary transition duration-300">Privacy Policy</a>

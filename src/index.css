@@ -29,3 +29,13 @@ body {
   background-blend-mode: overlay;
   background-color: rgba(0, 0, 0, 0.5);
 }
+
+.logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  background: linear-gradient(90deg, #6B46C1, #ED64A6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}

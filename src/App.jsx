@@ -6,6 +6,9 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import JobListings from "./pages/JobListings";
 import PostJob from "./pages/PostJob";
+import CareerTips from "./pages/CareerTips";
+import EmployerProfile from "./pages/EmployerProfile";
+import JobSeekerProfile from "./pages/JobSeekerProfile";
 
 const App = () => {
   return (
@@ -17,6 +20,9 @@ const App = () => {
           <Route path="/post-job" element={<PostJob />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/career-tips" element={<CareerTips />} />
+          <Route path="/employer-profile" element={<EmployerProfile />} />
+          <Route path="/jobseeker-profile" element={<JobSeekerProfile />} />
         </Routes>
       </Router>
     </AuthProvider>

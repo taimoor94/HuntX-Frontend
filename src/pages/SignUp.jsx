@@ -7,10 +7,10 @@ import InputField from "../components/InputField";
 import { AuthContext } from "../context/AuthContext";
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const { setToken } = useContext(AuthContext);
+  const { setToken, setRole } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,14 +18,14 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email || !formData.password || !formData.role) {
       setMessage("All fields are required!");
       return;
     }
     try {
       const response = await axios.post("http://localhost:5000/api/auth/signup", formData);
       setMessage(response.data.message);
-      setFormData({ name: "", email: "", password: "" });
+      setFormData({ name: "", email: "", password: "", role: "" });
       setTimeout(() => navigate("/signin"), 2000);
     } catch (error) {
       setMessage(error.response?.data?.message || "Sign up failed!");
@@ -71,6 +71,21 @@ const SignUp = () => {
               value={formData.password}
               onChange={handleChange}
             />
+            <div className="mb-6">
+              <label className="block text-gray-700 font-semibold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                I am a:
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg bg-gray-50 shadow-inner border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300 hover:shadow-md"
+              >
+                <option value="">Select Role</option>
+                <option value="Employer">Employer</option>
+                <option value="Job Seeker">Job Seeker</option>
+              </select>
+            </div>
             <div className="flex justify-center">
               <FancyButton text="Sign Up Now" />
             </div>
