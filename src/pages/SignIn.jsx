@@ -1,83 +1,71 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Navbar from "../components/Navbar";
-import FancyButton from "../components/FancyButton";
-import InputField from "../components/InputField";
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { ToastContainer, toast } from 'react-toastify';
+import Navbar from "../components/Navbar";
+import InputField from "../components/InputField";
+import FancyButton from "../components/FancyButton";
+import API_BASE_URL from "../config";
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { setToken, setRole, setUserId } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { setToken, setRole } = useContext(AuthContext);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      // setMessage("All fields are required!");
-      toast.error("All fields are required!");
-      return;
-    }
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signin", formData);
-      toast.success("Signed in successfully!");
+      const response = await axios.post(`${API_BASE_URL}/api/auth/signin`, {
+        email,
+        password,
+      });
       setToken(response.data.token);
       setRole(response.data.role);
-      setFormData({ email: "", password: "" });
-      setTimeout(() => navigate(response.data.role === "Employer" ? "/employer-profile" : "/jobseeker-profile"), 2000);
+      setUserId(response.data.userId);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role);
+      localStorage.setItem("userId", response.data.userId);
+      navigate(response.data.role === "Employer" ? "/employer-profile" : "/jobseeker-profile");
     } catch (error) {
-      // setMessage(error.response?.data?.message || "Sign in failed!");
-      toast.error(error.response?.data?.message || "Sign in failed!");
+      console.error(error);
+      alert("Signin failed. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 animate-pulse"></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-900 dark:from-gray-100 dark:to-indigo-200 flex items-center justify-center">
       <Navbar />
-      <ToastContainer />
-      <div className="flex justify-center items-center mt-16 relative z-10">
-        <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md transform hover:scale-105 transition duration-500 border-t-4 border-primary">
-          <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Welcome Back to HuntX!
-          </h2>
-          {message && (
-            <p className={`text-center mb-6 ${message.includes("failed") ? "text-red-500" : "text-green-500"} font-semibold`}>
-              {message}
-            </p>
-          )}
-          <form onSubmit={handleSubmit}>
-            <InputField
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <InputField
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <div className="flex justify-center">
-              <FancyButton text="Sign In Now" />
-            </div>
-          </form>
-          <p className="text-center mt-6 text-gray-600">
-            Don’t have an account?{" "}
-            <a href="/signup" className="text-primary hover:underline font-semibold">Sign Up</a>
-          </p>
-        </div>
+      <div className="absolute inset-0 bg-[url('/src/assets/background.jpg')] bg-cover bg-center opacity-10"></div>
+      <div className="relative z-10 max-w-md w-full mx-auto mt-20 p-8 bg-gray-800/70 dark:bg-gray-200/70 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-700 dark:border-gray-300 animate-fadeIn">
+        <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-indigo-400 to-purple-500 dark:from-indigo-600 dark:to-purple-700 bg-clip-text text-transparent">
+          Welcome Back to HuntX
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <InputField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <InputField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <FancyButton type="submit" className="w-full">
+            Sign In
+          </FancyButton>
+        </form>
+        <p className="text-center mt-6 text-gray-400 dark:text-gray-600">
+          Don't have an account?{" "}
+          <a href="/signup" className="text-indigo-400 dark:text-indigo-600 hover:underline">
+            Sign Up
+          </a>
+        </p>
       </div>
     </div>
   );

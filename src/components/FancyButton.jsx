@@ -1,12 +1,14 @@
 import React from "react";
 
-const FancyButton = ({ text, onClick }) => {
+const FancyButton = ({ children, onClick, type = "button", className = "" }) => {
   return (
     <button
+      type={type}
       onClick={onClick}
-      className="bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 px-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition duration-300 animate-pulse"
+      className={`relative inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out group overflow-hidden ${className}`}
     >
-      {text}
+      <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+      <span className="relative z-10">{children}</span>
     </button>
   );
 };
