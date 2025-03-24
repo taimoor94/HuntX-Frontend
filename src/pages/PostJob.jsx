@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import FancyButton from "../components/FancyButton";
 import InputField from "../components/InputField";
 import { AuthContext } from "../context/AuthContext";
+import { ToastContainer, toast } from 'react-toastify';
 
 const PostJob = () => {
   const [formData, setFormData] = useState({
@@ -29,22 +30,27 @@ const PostJob = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
-      setMessage("Please sign in to post a job!");
+      // setMessage("Please sign in to post a job!");
+      toast.error("Please sign in to post a job!");
+
       return;
     }
     if (role !== "Employer") {
-      setMessage("Only employers can post jobs!");
+      // setMessage("Only employers can post jobs!");
+      toast.error("Only employers can post jobs!");
       return;
     }
     if (Object.values(formData).some((val) => !val && val !== false)) {
-      setMessage("All fields are required!");
+      // setMessage("All fields are required!");
+      toast.error("All fields are required!");
       return;
     }
     try {
       const response = await axios.post("http://localhost:5000/api/jobs/post", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMessage(response.data.message);
+      // setMessage(response.data.message);
+      toast.success(response.data.message);
       setFormData({
         title: "",
         description: "",
@@ -55,13 +61,15 @@ const PostJob = () => {
         isFeatured: false,
       });
     } catch (error) {
-      setMessage(error.response?.data?.message || "Failed to post job!");
+      // setMessage(error.response?.data?.message || "Failed to post job!");
+      toast.error(error.response?.data?.message);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
+      <ToastContainer />
       <div className="max-w-3xl mx-auto mt-12 p-8 bg-white rounded-2xl shadow-2xl">
         <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Post a New Job on HuntX
