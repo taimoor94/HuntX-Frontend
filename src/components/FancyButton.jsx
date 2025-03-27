@@ -1,14 +1,13 @@
 import React from "react";
 
-const FancyButton = ({ children, onClick, type = "button", className = "" }) => {
+const FancyButton = ({ children, onClick, type = "button", className }) => {
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`relative inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out group overflow-hidden ${className}`}
+      className={`px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-600 dark:to-purple-700 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 dark:hover:from-indigo-700 dark:hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75 transition-all duration-300 transform hover:scale-105 ${className}`}
     >
-      <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-      <span className="relative z-10">{children}</span>
+      {children}
     </button>
   );
 };

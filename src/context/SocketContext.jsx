@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import API_BASE_URL from "../config";
@@ -6,20 +6,27 @@ import API_BASE_URL from "../config";
 export const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
-  const { token, userId } = useContext(AuthContext);
-  const socket = io(API_BASE_URL, {
-    auth: { token },
-  });
+  const { userId } = useContext(AuthContext);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    if (userId) {
-      socket.emit("join", userId);
-    }
+    const newSocket = io(API_BASE_URL);
+    setSocket(newSocket);
 
     return () => {
-      socket.disconnect();
+      newSocket.disconnect();
     };
-  }, [userId]);
+  }, []);
 
-  return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
+  useEffect(() => {
+    if (socket && userId) {
+      socket.emit("join", userId);
+    }
+  }, [socket, userId]);
+
+  return (
+    <SocketContext.Provider value={socket}>
+      {children}
+    </SocketContext.Provider>
+  );
 };

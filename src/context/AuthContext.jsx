@@ -6,24 +6,21 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [role, setRole] = useState(localStorage.getItem("role"));
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
-  const [isDarkMode, setIsDarkMode] = useState(
-    localStorage.getItem("theme") === "dark" ? true : false
-  );
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("userId", userId);
     } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userId");
     }
-  }, [isDarkMode]);
+  }, [token, role, userId]);
 
   return (
-    <AuthContext.Provider
-      value={{ token, setToken, role, setRole, userId, setUserId, isDarkMode, setIsDarkMode }}
-    >
+    <AuthContext.Provider value={{ token, setToken, role, setRole, userId, setUserId }}>
       {children}
     </AuthContext.Provider>
   );

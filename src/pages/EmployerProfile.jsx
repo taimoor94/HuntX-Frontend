@@ -1,19 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
+import { AuthContext } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import JobCard from "../components/JobCard";
+import ProfilePictureUploader from "../components/ProfilePictureUploader";
 import InputField from "../components/InputField";
 import FancyButton from "../components/FancyButton";
-import ConnectionCard from "../components/ConnectionCard";
 import API_BASE_URL from "../config";
+import { User, Briefcase } from "lucide-react";
 
 const EmployerProfile = () => {
   const { token } = useContext(AuthContext);
-  const [user, setUser] = useState({});
+  const [profile, setProfile] = useState(null);
   const [jobs, setJobs] = useState([]);
-  const [connections, setConnections] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,7 +28,7 @@ const EmployerProfile = () => {
         const response = await axios.get(`${API_BASE_URL}/api/users/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(response.data.user);
+        setProfile(response.data.user);
         setFormData({
           name: response.data.user.name,
           email: response.data.user.email,
@@ -37,6 +37,7 @@ const EmployerProfile = () => {
           location: response.data.user.location || "",
         });
       } catch (error) {
+        toast.error("Failed to fetch profile.");
         console.error("Error fetching profile:", error);
       }
     };
@@ -48,29 +49,17 @@ const EmployerProfile = () => {
         });
         setJobs(response.data);
       } catch (error) {
+        toast.error("Failed to fetch jobs.");
         console.error("Error fetching jobs:", error);
-      }
-    };
-
-    const fetchConnections = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/connections/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setConnections(response.data);
-      } catch (error) {
-        console.error("Error fetching connections:", error);
       }
     };
 
     fetchProfile();
     fetchJobs();
-    fetchConnections();
   }, [token]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -79,179 +68,105 @@ const EmployerProfile = () => {
       const response = await axios.put(`${API_BASE_URL}/api/users/profile`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUser(response.data.user);
-      setIsEditing(false);
+      setProfile(response.data.user);
+      localStorage.setItem("userName", response.data.user.name);
       toast.success("Profile updated successfully!");
     } catch (error) {
-      toast.error("Failed to update profile.");
-      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update profile.");
+      console.error("Error updating profile:", error);
     }
   };
 
+  const handleProfilePictureUpload = (profilePicture) => {
+    setProfile({ ...profile, profilePicture });
+  };
+
+  if (!profile) return <div>Loading...</div>;
+
   return (
-    <div className="min-h-screen bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-white">
       <Navbar />
-      <div className="max-w-5xl mx-auto mt-12 p-8 bg-gray-800/70 dark:bg-gray-200/70 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-700 dark:border-gray-300 animate-fadeIn">
-        <div className="flex items-center space-x-6 mb-8">
-          <img
-            src={user.profilePicture || "https://via.placeholder.com/100"}
-            alt="Profile"
-            className="w-24 h-24 rounded-full border-4 border-indigo-500"
-            onError={(e) => (e.target.src = "https://via.placeholder.com/100")}
-          />
-          <div>
-            <h2 className="text-3xl font-bold text-indigo-400 dark:text-indigo-600">{user.name}</h2>
-            <p className="text-gray-400 dark:text-gray-600">{user.email}</p>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative bg-gray-800/50 dark:bg-gray-200/50 backdrop-blur-lg p-8 rounded-2xl shadow-2xl mb-12">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 rounded-2xl opacity-50"></div>
+          <div className="relative z-10">
+            <div className="flex items-center space-x-6 mb-8">
+              <img
+                src={profile.profilePicture || "/default-profile.png"}
+                alt="Profile"
+                className="w-24 h-24 rounded-full border-4 border-indigo-500"
+                onError={(e) => (e.target.src = "/default-profile.png")}
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-indigo-400 dark:text-indigo-600">
+                  {profile.name}
+                </h1>
+                <p className="text-gray-400 dark:text-gray-600">{profile.email}</p>
+              </div>
+            </div>
+            <ProfilePictureUploader onUpload={handleProfilePictureUpload} />
+            <form onSubmit={handleSubmit} className="space-y-6 mt-8">
+              <InputField
+                label="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                required
+              />
+              <InputField
+                label="Email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                required
+              />
+              <InputField
+                label="Company Info"
+                name="companyInfo"
+                value={formData.companyInfo}
+                onChange={handleChange}
+                placeholder="Enter company information"
+              />
+              <InputField
+                label="Website"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="Enter company website"
+              />
+              <InputField
+                label="Location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Enter company location"
+              />
+              <FancyButton type="submit" className="w-full">
+                Update Profile
+              </FancyButton>
+            </form>
           </div>
         </div>
 
-        {isEditing ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <InputField
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-            <InputField
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-200 dark:text-gray-700 mb-2">
-                Company Info
-              </label>
-              <textarea
-                name="companyInfo"
-                value={formData.companyInfo}
-                onChange={handleInputChange}
-                className="w-full p-4 bg-gray-800/50 dark:bg-gray-300/50 border border-gray-600 dark:border-gray-400 rounded-lg text-white dark:text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm"
-                rows="4"
-                placeholder="Tell us about your company..."
-              />
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-indigo-400 dark:text-indigo-600">
+            Posted Jobs
+          </h2>
+          {jobs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {jobs.map((job) => (
+                <JobCard key={job._id} job={job} />
+              ))}
             </div>
-            <InputField
-              label="Website"
-              name="website"
-              value={formData.website}
-              onChange={handleInputChange}
-              placeholder="https://yourcompany.com"
-            />
-            <InputField
-              label="Location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              placeholder="e.g., San Francisco, CA"
-            />
-            <div className="flex space-x-4">
-              <FancyButton type="submit">Save</FancyButton>
-              <FancyButton
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="bg-gray-600 hover:bg-gray-700 dark:bg-gray-400 dark:hover:bg-gray-500"
-              >
-                Cancel
-              </FancyButton>
-            </div>
-          </form>
-        ) : (
-          <>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-2xl font-semibold text-indigo-400 dark:text-indigo-600 mb-2">
-                  Company Info
-                </h3>
-                <p className="text-gray-300 dark:text-gray-700">{user.companyInfo || "Not provided"}</p>
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold text-indigo-400 dark:text-indigo-600 mb-2">
-                  Website
-                </h3>
-                <p className="text-gray-300 dark:text-gray-700">
-                  {user.website ? (
-                    <a
-                      href={user.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-indigo-400 dark:text-indigo-600 hover:underline"
-                    >
-                      {user.website}
-                    </a>
-                  ) : (
-                    "Not provided"
-                  )}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold text-indigo-400 dark:text-indigo-600 mb-2">
-                  Location
-                </h3>
-                <p className="text-gray-300 dark:text-gray-700">{user.location || "Not provided"}</p>
-              </div>
-              <FancyButton onClick={() => setIsEditing(true)}>Edit Profile</FancyButton>
-            </div>
-
-            <div className="mt-12">
-              <h3 className="text-2xl font-semibold text-indigo-400 dark:text-indigo-600 mb-4">
-                Posted Jobs
-              </h3>
-              {jobs.length === 0 ? (
-                <p className="text-gray-400 dark:text-gray-600">You haven't posted any jobs yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {jobs.map((job) => (
-                    <div
-                      key={job._id}
-                      className="relative bg-gray-800/50 dark:bg-gray-300/50 backdrop-blur-md p-6 rounded-xl shadow-2xl"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
-                      <h4 className="text-xl font-semibold text-indigo-400 dark:text-indigo-600 relative z-10">
-                        {job.title}
-                      </h4>
-                      <p className="text-gray-300 dark:text-gray-700 relative z-10">{job.company}</p>
-                      <p className="text-gray-400 dark:text-gray-600 relative z-10">
-                        {job.location} - {job.jobType}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="mt-12">
-              <h3 className="text-2xl font-semibold text-indigo-400 dark:text-indigo-600 mb-4">
-                Connections
-              </h3>
-              {connections.length === 0 ? (
-                <p className="text-gray-400 dark:text-gray-600">You have no connections yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {connections.map((connection) => (
-                    <ConnectionCard
-                      key={connection._id}
-                      connection={connection}
-                      onAction={() => {
-                        const fetchConnections = async () => {
-                          const response = await axios.get(`${API_BASE_URL}/api/connections/list`, {
-                            headers: { Authorization: `Bearer ${token}` },
-                          });
-                          setConnections(response.data);
-                        };
-                        fetchConnections();
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+          ) : (
+            <p className="text-center text-gray-400 dark:text-gray-600">
+              No jobs posted yet.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
